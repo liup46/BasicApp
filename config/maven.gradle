@@ -1,0 +1,117 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+def isRelease =true
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            Properties pomProps = new Properties()
+            pomProps.load(new FileInputStream("${projectDir}/pom.properties"))
+            Properties mavenProps = new Properties()
+            mavenProps.load(new FileInputStream(rootProject.file('gradles/maven.properties')))
+
+            def url = mavenProps.releasesUrl
+            if (pomProps.Version.endsWith("-SNAPSHOT")) {
+                isRelease =false
+                url = mavenProps.snapshotsUrl
+            }
+
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            pom.groupId = pomProps.GroupId
+            pom.artifactId = pomProps.ArtifactId
+            pom.version = pomProps.Version
+
+            pom.project {
+                name pomProps.Name
+                packaging pomProps.PackageType
+                description 'git rev-parse HEAD'.execute([], projectDir).text.trim()
+                // 最后一次git提交的hash
+
+                scm {
+                    connection pomProps.Developer_Email
+                    developerConnection pomProps.Developer_Email
+                }
+
+                developers {
+                    developer {
+                        name pomProps.Developer
+                    }
+                }
+            }
+
+            repository(url: url) {
+                authentication(userName: mavenProps.Username, password: mavenProps.Password)
+            }
+        }
+
+    }
+}
+
+signing {
+    required {
+        isRelease && gradle.taskGraph.hasTask("uploadArchives")
+    }
+    sign configurations.archives
+}
+
+//将源码打包
+task androidSourcesJar(type: Jar) {
+    classifier = "sources"
+    from android.sourceSets.main.java.srcDirs
+}
+
+    //生成文档注释
+//task androidJavadocs(type: Javadoc) {
+//    failOnError = false
+//    source = android.sourceSets.main.java.srcDirs
+////    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+//    options {
+//        encoding 'utf-8'
+//        charSet 'utf-8'
+//        links 'http://docs.oracle.com/javase/8/docs/api/'
+//
+//    }
+//    exclude '**/BuildConfig.java'
+//    exclude '**/R.java'
+//    options.encoding = "utf-8"
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+
+    //将文档打包成jar
+//task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+//    classifier = 'javadoc'
+//    from androidJavadocs.destinationDir
+//}
+
+//afterEvaluate {
+//    //兼容
+//    androidJavadocs.classpath += files(
+//            android.libraryVariants.collect { variant ->
+//                variant.javaCompileProvider.get().classpath.files
+//            }
+//    )
+//}
+
+task uploadLib {
+    dependsOn clean, uploadArchives
+}
+
+artifacts {
+    archives androidSourcesJar
+//    archives androidJavadocsJar
+}
+
+//task buildDoc {
+//    androidSourcesJar
+//    androidJavadocsJar
+//}
+
+
+
+
+
+
+
+

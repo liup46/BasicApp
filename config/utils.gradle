@@ -1,0 +1,22 @@
+
+def getAppVersionCode(){
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-list', 'HEAD', '--count'
+            standardOutput = stdout
+        }
+        return Integer.parseInt(stdout.toString().trim())
+    } catch (ignored) {
+    }
+    return 1
+}
+
+def getTime() {
+    return new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("GMT+8"))
+}
+
+ext.utils = [:]
+//通过这种方式，其他gradle 可以调用getTime()方法
+utils.getAppVersionCode = this.&getAppVersionCode
+utils.getTime = this.&getTime

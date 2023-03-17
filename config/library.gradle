@@ -1,0 +1,8 @@
+
+apply from: rootProject.file('config/common.gradle')
+
+android {
+    defaultConfig{
+        consumerProguardFiles "consumer-rules.pro"
+    }
+}

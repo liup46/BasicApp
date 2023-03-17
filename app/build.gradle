@@ -1,0 +1,22 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+ext{
+    appName = "Basic"
+    appId = 'com.basic.app'
+    appVersionName ="1.1"
+    sign = [
+            path    : './release/keystore.jks',
+            pass    : '123456',
+            key_pass: "123456",
+            alias   : "Test"
+    ]
+}
+
+//keep this line after above ext config
+apply from: rootProject.file('config/app.gradle')
+
+dependencies {
+}

@@ -1,0 +1,77 @@
+apply from: rootProject.file('config/common.gradle')
+apply from: rootProject.file('config/utils.gradle')
+
+def version_code = utils.getAppVersionCode()
+
+android {
+    namespace appId
+
+    defaultConfig {
+        applicationId appId
+        versionName appVersionName
+        versionCode version_code
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(sign.path)
+            storePassword sign.pass
+            keyPassword sign.key_pass
+            keyAlias sign.alias
+            v2SigningEnabled true
+            v1SigningEnabled true
+        }
+    }
+
+    buildTypes {
+        //开发包
+        debug {
+            minifyEnabled false
+            debuggable true
+        }
+
+        //提测包，
+        outer.initWith(debug)
+        outer {
+            signingConfig signingConfigs.release
+            debuggable true //可以抓包
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        //线上包
+        release.initWith(outer)
+        release {
+            debuggable false
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            jni.srcDirs = ['src/main/jni']
+        }
+
+        debug {
+            assets.srcDirs = ['assets', 'config/debug']
+        }
+
+        outer {
+            assets.srcDirs = ['assets', 'config/outer']
+        }
+
+        release {
+            assets.srcDirs = ['assets', 'config/release']
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "${appName}_${variant.buildType.name}_${variant.versionName}_v${variant.versionCode}_${utils.getTime()}.apk"
+        }
+    }
+
+}
