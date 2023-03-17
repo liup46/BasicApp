@@ -1,0 +1,13 @@
+apply from: rootProject.file('config/deps.gradle')
+apply plugin: 'com.alibaba.arouter'
+
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.getName())
+    }
+}
+
+dependencies {
+    api deps.arouter.api
+    kapt deps.arouter.api
+}

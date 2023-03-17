@@ -10,8 +10,9 @@ ext {
             ],
 
             arouter             : [
-                    api     : "com.alibaba:arouter-api:1.5.0",
-                    compiler: "com.alibaba:arouter-api:1.2.2"
+                    api     : "com.alibaba:arouter-api:1.5.2",
+                    compiler: "com.alibaba:arouter-api:1.5.2",
+                    register: "com.alibaba:arouter-register:1.0.2"
             ],
             smart_refresh_layout: "com.scwang.smartrefresh:SmartRefreshLayout:1.1.0",
     ]

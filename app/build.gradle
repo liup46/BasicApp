@@ -17,6 +17,7 @@ ext{
 
 //keep this line after above ext config
 apply from: rootProject.file('config/app.gradle')
+apply from: rootProject.file('config/arouter.gradle')
 
 dependencies {
 }

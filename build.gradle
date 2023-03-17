@@ -1,4 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    apply from: 'config/deps.gradle'
+    dependencies {
+        classpath deps.arouter.register
+    }
+}
+
 plugins {
     id 'com.android.application' version '7.4.2' apply false
     id 'com.android.library' version '7.4.2' apply false
