@@ -1,0 +1,22 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply from: rootProject.file('config/library.gradle')
+
+android {
+    namespace 'com.basic.net'
+}
+
+dependencies {
+    implementation deps.okhttp
+    implementation deps.coroutines
+    implementation deps.coroutines_android
+    implementation project(path: ':base:log')
+    implementation project(path: ':base:util')
+    implementation project(path: ':base:env')
+    implementation deps.gson
+    testImplementation deps.junit
+
+}

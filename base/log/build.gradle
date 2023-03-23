@@ -2,12 +2,14 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
 }
+
 apply from: rootProject.file('config/library.gradle')
 
 android {
-    namespace 'com.basic.util'
+    namespace 'com.basic.log'
 }
 
 dependencies {
-
+    implementation deps.logan
+    implementation project(path: ':base:env')
 }

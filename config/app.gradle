@@ -11,6 +11,10 @@ android {
         versionName appVersionName
         versionCode version_code
         multiDexEnabled true
+
+        //use for some special chanel which maybe hard coded in product favor such as googleplay
+        buildConfigField("String", "CHANNEL", "\"\"")
+
     }
 
     signingConfigs {
@@ -73,5 +77,16 @@ android {
             outputFileName = "${appName}_${variant.buildType.name}_${variant.versionName}_v${variant.versionCode}_${utils.getTime()}.apk"
         }
     }
+}
 
+apply plugin: 'walle'
+walle {
+    // 指定渠道包的输出路径
+    apkOutputFolder = new File("${project.buildDir}/outputs/channels");
+    // 定制渠道包的APK的文件名称
+    apkFileNameFormat = '${appName}_{versionName}_${versionCode}_${buildTime}_${channel}.apk'
+    // 渠道配置文件
+    channelFile = new File("${project.getProjectDir()}/channel")
+
+    //./gradlew clean assembleReleaseChannels
 }

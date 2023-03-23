@@ -41,4 +41,5 @@ dependencies {
     implementation deps.appcompat
     implementation deps.material
     implementation deps.constraintlayout
+    testImplementation deps.junit
 }
