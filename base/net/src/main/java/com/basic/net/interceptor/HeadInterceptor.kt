@@ -4,15 +4,15 @@ import android.os.Build
 import android.util.Base64
 import com.basic.env.App
 import com.basic.net.HttpUtils
-import com.basic.net.NetworkUtils
-import com.basic.util.AppUtils
+import com.basic.util.NetworkUtils
 import com.basic.util.DeviceUtils
+import com.basic.util.getVersionCode
+import com.basic.util.getVersionName
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import okio.Buffer
 import java.util.*
-import kotlin.collections.HashMap
 
 
 /**
@@ -35,13 +35,13 @@ class HeadInterceptor : Interceptor {
                 .append(";")
                 .append(App.getContext().packageName)
                 .append(" ")
-                .append(AppUtils.getVersionName(App.getContext()))
+                .append(App.getContext().getVersionName())
                 .append(";")
                 .append(DeviceUtils.getPhoneBrand())
                 .append(";")
                 .append(App.getChannelId())
                 .append(";")
-                .append(AppUtils.getVersionCode(App.getContext()))
+                .append(App.getContext().getVersionCode())
                 .append(")")
             return sb.toString()
         }

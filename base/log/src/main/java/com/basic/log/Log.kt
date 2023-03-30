@@ -2,7 +2,7 @@ package com.basic.log
 
 import android.util.Log
 import com.basic.env.App
-import com.basic.util.isDebug
+import com.basic.util.isDebugApk
 import com.basic.util.traceMessage
 import com.dianping.logan.Logan
 import com.dianping.logan.LoganConfig
@@ -16,12 +16,12 @@ import java.io.File
  *
  */
 object Logger {
-    private const val Tag = "Logger"
+    private const val TAG = "Logger"
     private const val TYPE_CODE = 3
-    const val TYPE_HTTP =4
+    const val TYPE_HTTP = 4
 
     init {
-        val context = App.getContext();
+        val context = App.getContext()
         val config = LoganConfig.Builder()
             .setMaxFile(20)
             .setCachePath(context.filesDir.absolutePath)
@@ -32,27 +32,27 @@ object Logger {
             .setEncryptKey16("log123450".toByteArray())
             .setEncryptIV16("log123450".toByteArray())
             .build()
-        Logan.setDebug(context.isDebug())
+        Logan.setDebug(context.isDebugApk())
         Logan.init(config)
         Logan.setOnLoganProtocolStatus { cmd, code ->
-            Log.i(Tag, "Logan protoal status $cmd: $code")
+            Log.i(TAG, "Logan protoal status $cmd: $code")
         }
-    }
-
-    private var logUploader: LogUploader? = null
-    fun setLogUploader(logUploader: LogUploader) {
-        this.logUploader = logUploader
     }
 
     private var sendLogRunnable = object : SendLogRunnable() {
         override fun sendLog(logFile: File?) {
             if (logFile != null && logFile.exists()) {
-                logUploader?.invoke(logFile)
+                App.uploadService?.uploadCrash(logFile) { it, msg ->
+                    if (it) {
+                        if (logFile.name.contains(".copy")) {
+                            logFile.delete()
+                        }
+                    } else {
+                        e(TAG, msg)
+                    }
+                }
             }
             finish()
-            if (logFile?.name?.contains(".copy") == true) {
-                logFile.delete();
-            }
         }
     }
 
@@ -72,6 +72,10 @@ object Logger {
         Log.d(tag, msg, e)
     }
 
+    fun v(tag: String, msg: String, e: Throwable? = null) {
+        Log.v(tag, msg, e)
+    }
+
     fun f() {
         Logan.f()
     }
@@ -79,7 +83,4 @@ object Logger {
     fun send(dates: Array<String>) {
         Logan.s(dates, sendLogRunnable)
     }
-
 }
-
-typealias LogUploader = (File) -> Unit

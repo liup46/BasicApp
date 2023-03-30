@@ -1,7 +1,8 @@
 package com.basic.env
 
+import android.app.Application
 import android.content.Context
-import com.basic.util.isDebug
+import com.basic.util.isDebugApk
 import com.basic.util.nullEmpty
 import com.meituan.android.walle.WalleChannelReader
 
@@ -16,17 +17,23 @@ object App {
     private var deviceConfig :DeviceConfig?= null
     private var userConfig:UserConfig? = null
     private var appChannel: String? = null
+    var uploadService:UploadService?= null
 
-    fun init(context: Context) {
-        appContext = context
+    fun init(application: Application) {
+        appContext = application
+        AppLifecycleManager.init(application)
     }
 
     fun getContext(): Context {
         return appContext!!
     }
 
-    fun isDebug(): Boolean {
-        return getContext().isDebug()
+    fun isDev(): Boolean {
+        return getContext().isDebugApk()
+    }
+
+    fun isBeta():Boolean{
+        return BuildConfig.Beta
     }
 
     fun setUrlConfig(httpConfig: HttpConfig) {

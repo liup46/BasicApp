@@ -1,9 +1,12 @@
 package com.basic.net.interceptor
 
+import android.app.ActivityManager
 import com.basic.env.App
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import java.io.RandomAccessFile
+import java.nio.ByteOrder
 
 /**
  * @author Peter Liu
@@ -24,6 +27,9 @@ class DecryptInterceptor : Interceptor {
         val isEncrypt = response.header(X_ENCRYPT)
         var decryptResponse = response
         if (true.toString() == isEncrypt) {
+            RandomAccessFile("","").channel
+            ByteOrder.LITTLE_ENDIAN
+            ActivityManager.ProcessErrorStateInfo.CRASHED
             val responseBody = response.body
             responseBody?.apply {
                 val decryptResult = App.getUserConfig().decrypt(bytes())

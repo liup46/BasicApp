@@ -29,7 +29,6 @@ object HttpService {
         .addInterceptor(LogInterceptor())
         .build()
 
-
     private fun newRequestBuilder(
         host: String,
         path: String,

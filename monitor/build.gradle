@@ -6,7 +6,8 @@ plugins {
 apply from: rootProject.file('config/library.gradle')
 
 android {
-    namespace 'com.basic.base'
+    namespace 'com.basic.monitor'
+
 }
 
 dependencies {

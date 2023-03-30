@@ -1,12 +1,18 @@
 apply plugin: 'kotlin-kapt'
 apply from: rootProject.file('config/deps.gradle')
 
+def isBeta() {
+    return project.hasProperty('Beta') ? project.Beta == 'true' : false
+}
+
 android {
     compileSdk 33
 
     defaultConfig {
         minSdk 24
         targetSdk 33
+
+        buildConfigField("boolean", "Beta", isBeta() ? "true" : "false")
     }
 
     buildTypes {
@@ -24,7 +30,7 @@ android {
         jvmTarget = '1.8'
     }
 
-    lintOptions{
+    lintOptions {
 //        abortOnError false
     }
 

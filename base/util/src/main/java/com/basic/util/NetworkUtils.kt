@@ -1,4 +1,4 @@
-package com.basic.net
+package com.basic.util
 
 import android.annotation.SuppressLint
 import android.content.Context

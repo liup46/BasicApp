@@ -5,10 +5,10 @@ import android.nfc.TagLostException
 import android.os.ParcelFileDescriptor.FileDescriptorDetachedException
 import android.util.Base64DataException
 import com.basic.env.App
+import com.basic.util.NetworkUtils
 import com.google.gson.JsonParseException
 import com.google.gson.stream.MalformedJsonException
 import okhttp3.internal.http2.ConnectionShutdownException
-import okhttp3.internal.http2.Header
 import okhttp3.internal.http2.StreamResetException
 import org.json.JSONException
 import java.io.*

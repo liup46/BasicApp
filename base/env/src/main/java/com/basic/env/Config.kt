@@ -2,6 +2,8 @@ package com.basic.env
 
 import android.content.Context
 
+//todo will imp this files
+
 /**
  * @author Peter Liu
  * @since 2023/3/24 01:47
@@ -10,7 +12,6 @@ import android.content.Context
 interface HttpConfig {
     var HttpHost: String
     var LogUploadPath: String
-
 
 }
 
@@ -22,10 +23,11 @@ interface DeviceConfig {
 
 interface UserConfig {
     var accessToken: String
+    var userId:String
 
     //when debug return faslse
     open fun enableEncryptRequest():Boolean{
-        return !App.isDebug()
+        return !App.isDev()
     }
 
     //验签

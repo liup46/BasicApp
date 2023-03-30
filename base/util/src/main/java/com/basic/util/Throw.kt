@@ -10,6 +10,13 @@ import java.io.StringWriter
  */
 fun Throwable.traceMessage(): String {
     val stringWriter = StringWriter()
-    this.printStackTrace(PrintWriter(stringWriter))
+    this.writeTrace(PrintWriter(stringWriter))
     return stringWriter.toString()
+}
+
+fun Throwable.writeTrace(printWriter: PrintWriter) {
+    if (this.cause != null && this.cause != this) {
+        this.cause!!.writeTrace(printWriter)
+    }
+    this.printStackTrace(printWriter)
 }

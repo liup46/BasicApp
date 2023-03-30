@@ -38,7 +38,7 @@ class LogInterceptor : Interceptor {
         val starTime = System.currentTimeMillis()
         val request: Request = chain.request()
         val requestBuilder = request.newBuilder()
-        var response: Response? = null
+        val response: Response?
         try {
             response = chain.proceed(requestBuilder.build())
             val endTime = System.currentTimeMillis()
@@ -59,7 +59,7 @@ class LogInterceptor : Interceptor {
             val jsonObject = JSONObject()
             jsonObject.put("url", request.url.toString())
             jsonObject.put("header", request.headers.toString())
-            jsonObject.put("tid", request.header(CommonInterceptor.TRACE_ID))
+            jsonObject.put("tid", request.header(HeadInterceptor.TRACE_ID))
             jsonObject.put("requestBody", HttpUtils.getRequestStr(request))
             jsonObject.put("responseCode", response.code)
             jsonObject.put("response", HttpUtils.getResponseStr(response))
@@ -78,7 +78,7 @@ class LogInterceptor : Interceptor {
         starTime: Long,
         endTime: Long
     ) {
-        if (App.isDebug()) {
+        if (App.isDev()) {
             val urlStr = request.url.toString()
             val requestStr = HttpUtils.getRequestStr(request)
             val responseStr = HttpUtils.getResponseStr(response)

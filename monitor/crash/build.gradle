@@ -1,0 +1,19 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+apply from: rootProject.file('config/library.gradle')
+
+android {
+    namespace 'com.basic.crash'
+
+}
+
+dependencies {
+    implementation deps.xcrash
+    implementation project(path: ':base:log')
+    implementation project(path: ':base:env')
+    implementation project(path: ':base:util')
+
+
+}
