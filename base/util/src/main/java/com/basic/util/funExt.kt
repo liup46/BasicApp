@@ -6,7 +6,7 @@ package com.basic.util
  *
  */
 
-inline fun <T:Any> safeCall(default: T? = null, crossinline call: () -> T?): T? {
+inline fun <T : Any> safeCall(default: T? = null, crossinline call: () -> T?): T? {
     return try {
         call.invoke()
     } catch (e: Exception) {

@@ -2,9 +2,14 @@
 
 buildscript {
     apply from: 'config/deps.gradle'
+
     dependencies {
         classpath deps.arouter.register
         classpath deps.walle.plugin
+    }
+
+    repositories {
+        mavenCentral()
     }
 }
 

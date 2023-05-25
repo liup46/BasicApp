@@ -6,11 +6,14 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.os.Build
+import android.os.Bundle
 import java.security.MessageDigest
 import java.util.*
 
 
 /**
+ * Extentions for Context
+ *
  * @author Peter Liu
  * @since 2023/3/19 11:43
  *
@@ -20,6 +23,8 @@ import java.util.*
 private var appVersionName: String? = null
 private var appVersionCode: Int? = null
 private var appSign: String? = null
+private var metaData: Bundle? = null
+
 fun Context.isDebugApk(): Boolean {
     return applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE !== 0
 }
@@ -103,6 +108,25 @@ fun Context.getAppSignature(): String? {
         }
     }
     return appSign
+}
+
+fun Context.getMetaData(): Bundle? {
+    if (metaData == null) {
+        safeCall {
+            val applicationInfo: ApplicationInfo =
+                packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+            metaData = applicationInfo.metaData
+        }
+    }
+    return metaData
+}
+
+fun Context.getMetaString( key: String, default: String = ""): String {
+    return getMetaData()?.getString(key) ?: default
+}
+
+fun Context.getMetaInt(key: String, default: Int = 0): Int {
+    return getMetaData()?.getInt(key) ?: default
 }
 
 
