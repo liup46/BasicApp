@@ -13,7 +13,6 @@ fun Throwable.traceMessage(): String {
     this.writeTrace(PrintWriter(stringWriter))
     return stringWriter.toString()
 }
-
 fun Throwable.writeTrace(printWriter: PrintWriter) {
     if (this.cause != null && this.cause != this) {
         this.cause!!.writeTrace(printWriter)

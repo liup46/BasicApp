@@ -29,7 +29,7 @@ fun Context.isDebugApk(): Boolean {
     return applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE !== 0
 }
 
-fun Context.getVersionName():String?{
+fun Context.getVersionName(): String? {
     if (appVersionName == null) {
         appVersionName = safeCall("") {
             val application = applicationContext
@@ -58,7 +58,7 @@ fun Context.getVersionCode(): Int {
  * 获取App签名
  */
 fun Context.getAppSignature(): String? {
-    if(appSign == null){
+    if (appSign == null) {
         appSign = safeCall {
             var packageInfo: PackageInfo? = null
             var signatures: Array<Signature>? = null
@@ -89,7 +89,7 @@ fun Context.getAppSignature(): String? {
             }
             if (signatures == null || signatures.isEmpty()) {
                 null
-            }else{
+            } else {
                 val md5StrBuff = StringBuilder()
                 val messageDigest = MessageDigest.getInstance("MD5")
                 messageDigest.reset()
@@ -121,7 +121,7 @@ fun Context.getMetaData(): Bundle? {
     return metaData
 }
 
-fun Context.getMetaString( key: String, default: String = ""): String {
+fun Context.getMetaString(key: String, default: String = ""): String {
     return getMetaData()?.getString(key) ?: default
 }
 

@@ -18,6 +18,10 @@ data class ApiResponse<T> @JvmOverloads constructor(
     fun isSuccess(): Boolean {
         return code == HttpException.SUCCESS || code == "200"
     }
+
+    fun isDataEmpty(): Boolean {
+        return isSuccess() && (result == null || (result as? Collection<*>)?.isEmpty() == true)
+    }
 }
 
 fun <T> ApiResponse<T>?.isSuccess(): Boolean {

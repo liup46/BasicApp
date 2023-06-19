@@ -10,4 +10,7 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':base:env')
+    implementation project(path: ':base:util')
+    implementation project(path: ':base:net')
 }
