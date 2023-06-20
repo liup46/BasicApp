@@ -5,9 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.lifecycle.LifecycleOwner
 import com.basic.ui.view.StateView
 import com.basic.ui.view.setVisible
-import com.peter.vunit.views.Toolbar
+import com.basic.ui.view.Toolbar
 
 /**
  * @author: Peter Liu
@@ -15,11 +16,17 @@ import com.peter.vunit.views.Toolbar
  *
  */
 internal interface LifecycleInit {
-    val layoutId: Int
-
+    val layoutId: Int?
     var toolbar: Toolbar?
     var stateView: StateView?
 
+    val defaultViewModel: BaseViewModel
+
+    fun getViewModel(): BaseViewModel {
+        return defaultViewModel
+    }
+
+    fun getLifecycleOwner(): LifecycleOwner
 
     /**
      * 初始化intent Extra或者fragment arguments
@@ -29,9 +36,7 @@ internal interface LifecycleInit {
     /**
      * 初始化ToolBar
      */
-    fun initToolbar(toolbar: Toolbar) {
-
-    }
+    fun initToolbar(toolbar: Toolbar) {}
 
     /**
      * 初始化view
@@ -41,14 +46,14 @@ internal interface LifecycleInit {
     /**
      * 初始化ViewModel
      */
-    fun initModel() {}
+    fun initData() {}
 
     fun needToolbar(): Boolean {
-        return true
+        return false
     }
 
     fun needStateView(): Boolean {
-        return true
+        return false
     }
 
     fun initRootContent(inflater: LayoutInflater, parent: ViewGroup?): View? {
@@ -73,11 +78,15 @@ internal interface LifecycleInit {
     }
 
     fun initLayout(inflater: LayoutInflater, parent: ViewGroup?, attach: Boolean = false): View? {
-        if (layoutId > 0) {
+        if (layoutId != null && layoutId!! > 0) {
             val baseContent = parent?.findViewById<FrameLayout>(R.id.baseContent)
-            return inflater.inflate(layoutId, baseContent, attach)
+            return inflater.inflate(layoutId!!, baseContent, attach)
         }
         return parent
+    }
+
+    fun <V> liveData(default: V? = null): LiveDataProperty<LifecycleInit, V?> {
+        return getViewModel().liveData<LifecycleInit, V>(default)
     }
 }
 

@@ -16,7 +16,7 @@ import kotlin.properties.ObservableProperty
  */
 class Te {
 
-    var name: String? by lazy {  }
+    var name: String? ="12"
 }
 
 
@@ -35,9 +35,7 @@ class View {
         textView.text = date.name
         textView.visibility
 
-        Object.
     }
-
 
     fun setState(data: Te){
         render(data = data)

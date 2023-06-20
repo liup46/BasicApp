@@ -1,4 +1,4 @@
-package com.peter.vunit.views
+package com.basic.ui.view
 
 import android.app.Activity
 import android.content.Context

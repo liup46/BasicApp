@@ -5,8 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import com.basic.ui.view.StateView
-import com.peter.vunit.views.Toolbar
+import com.basic.ui.view.Toolbar
 
 /**
  * @author Peter Liu
@@ -19,9 +20,7 @@ abstract class BaseFragment : Fragment(), ViewGetter, LifecycleInit {
     override var stateView: StateView? = null
     private var isFirstResume = true
 
-    private val viewmodel:BaseViewModel by lazy { getViewModel(this) }
-
-    private var name by observable("st")
+    override val defaultViewModel: BaseViewModel by lazy { getViewModel(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,11 +45,15 @@ abstract class BaseFragment : Fragment(), ViewGetter, LifecycleInit {
             initToolbar(toolbar!!)
         }
         initView()
-        initModel()
+        initData()
     }
 
     override fun getRootView(): View? {
         return view
+    }
+
+    override fun getLifecycleOwner(): LifecycleOwner {
+        return this
     }
 
     override fun onResume() {
@@ -68,8 +71,5 @@ abstract class BaseFragment : Fragment(), ViewGetter, LifecycleInit {
         activity?.onBackPressed()
     }
 
-    fun <T> observable(default:T?= null):LiveDataPropertyProvider<BaseFragment,T>{
-        return viewmodel.liveDataProvider(default)
-    }
 }
 

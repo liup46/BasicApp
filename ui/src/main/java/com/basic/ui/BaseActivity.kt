@@ -4,9 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import com.basic.ui.view.StateView
 import com.basic.ui.view.StatusBarHelper
-import com.peter.vunit.views.Toolbar
+import com.basic.ui.view.Toolbar
 
 /**
  * @author Peter Liu
@@ -18,6 +19,8 @@ abstract class BaseActivity : AppCompatActivity(), ViewGetter, LifecycleInit {
     override val layoutId: Int = -1
     override var toolbar: Toolbar? = null
     override var stateView: StateView? = null
+
+    override val defaultViewModel: BaseViewModel by lazy { getViewModel(this) }
 
     override fun getRootView(): View? {
         return this.window.decorView
@@ -38,7 +41,7 @@ abstract class BaseActivity : AppCompatActivity(), ViewGetter, LifecycleInit {
             initToolbar(toolbar!!)
         }
         initView()
-        initModel()
+        initData()
 
 //         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 //             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -69,6 +72,14 @@ abstract class BaseActivity : AppCompatActivity(), ViewGetter, LifecycleInit {
         return true
     }
 
+    override fun needToolbar(): Boolean {
+        return true
+    }
+
+    override fun needStateView(): Boolean {
+        return true
+    }
+
     protected fun lightStatusBar(lightMode: Boolean) {
         if (lightMode) {
             StatusBarHelper.setStatusBarLightMode(this)
@@ -84,6 +95,10 @@ abstract class BaseActivity : AppCompatActivity(), ViewGetter, LifecycleInit {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun getLifecycleOwner(): LifecycleOwner {
+        return this
     }
 
 }

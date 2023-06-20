@@ -36,7 +36,6 @@ inline fun <reified CALL : Any, T> MutableLiveData<T>.launchData(
     }
 }
 
-
 typealias OnceObserver<T> = (T?) -> Unit
 
 class OnceLiveData<T> : MutableLiveData<T>() {

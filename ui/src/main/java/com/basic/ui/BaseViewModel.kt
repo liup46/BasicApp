@@ -1,5 +1,6 @@
 package com.basic.ui
 
+import android.os.Looper
 import androidx.annotation.NonNull
 import androidx.lifecycle.*
 import com.basic.net.ApiResponse
@@ -17,15 +18,19 @@ inline fun <reified T : ViewModel> getViewModel(@NonNull owner: ViewModelStoreOw
     return ViewModelProvider(owner).get(T::class.java)
 }
 
+internal fun <T, V> BaseViewModel.liveData(default: V? = null): LiveDataProperty<T, V?> {
+    return LiveDataProperty(this, default)
+}
+
 open class BaseViewModel : ViewModel() {
     var isCleared = false
         private set
 
     private val liveDataMap = hashMapOf<String, MutableLiveData<*>>()
 
-    fun addLiveData(tag: String, LiveData: MutableLiveData<*>) {
-        liveDataMap.put(tag, LiveData)
-    }
+    private var test:String? by liveData("123")
+    private var test2:String? by liveData()
+
 
     /**
      * 根据某个标识tag 创建一个 MutableLiveData
@@ -38,14 +43,25 @@ open class BaseViewModel : ViewModel() {
             if (default == null) MutableLiveData<T>() else MutableLiveData<T>(default)
         }
     ): MutableLiveData<T>? {
-        var liveData = liveDataMap[tag]
+        val liveData = liveDataMap[tag]
         return if (liveData == null && defaultFactory != null) {
-            liveData = defaultFactory.invoke(default)
-            liveDataMap[tag] = liveData
-            liveData
+            synchronized(this) {
+                var data = liveDataMap[tag]
+                if (data == null) {
+                    data = defaultFactory.invoke(default)
+                    liveDataMap[tag] = data
+                    data
+                } else {
+                    data as? MutableLiveData<T>
+                }
+            }
         } else {
             liveData as? MutableLiveData<T>
         }
+    }
+
+    fun <V> liveData(default: V? = null): LiveDataProperty<BaseViewModel, V?> {
+        return LiveDataProperty(this, default)
     }
 
     inline fun <reified T> launchResult(
@@ -112,18 +128,6 @@ open class BaseViewModel : ViewModel() {
         isCleared = true
         liveDataMap.clear()
     }
-
-
-    fun <T,V> liveDataProvider(default: V? = null):LiveDataPropertyProvider<T,V>{
-        return LiveDataPropertyProvider(this,default)
-    }
-
-}
-
-class LiveDataPropertyProvider<T, V>(var viewModel: BaseViewModel, var default: V? = null){
-    operator fun provideDelegate(thisRef: Any, property: KProperty<*>): ReadWriteProperty<T, V?> {
-        return LiveDataProperty(viewModel,default)
-    }
 }
 
 class LiveDataProperty<T, V>(var viewModel: BaseViewModel, var default: V? = null) :
@@ -133,9 +137,20 @@ class LiveDataProperty<T, V>(var viewModel: BaseViewModel, var default: V? = nul
     }
 
     override fun setValue(thisRef: T, property: KProperty<*>, value: V?) {
-        viewModel.getLiveData(property.name, default)!!.value = value
+        val livedata = viewModel.getLiveData(property.name, default)!!
+        if (Looper.getMainLooper().isCurrentThread) {
+            livedata.value = value
+        } else {
+            livedata.postValue(value)
+        }
     }
 }
+
+//class LiveDataPropertyProvider<T, V>(var viewModel: BaseViewModel, var default: V? = null) {
+//    operator fun provideDelegate(thisRef: Any, property: KProperty<*>): ReadWriteProperty<T, V?> {
+//        return LiveDataProperty(viewModel, default)
+//    }
+//}
 
 
 

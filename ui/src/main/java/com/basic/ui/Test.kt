@@ -20,7 +20,7 @@ class Test: AppCompatActivity() {
     }
 
     fun stest() : View {
-        Box {
+        return Box {
             Text {
                 textSize = 14.dp
                 textColor = R.color.test_color.res2Color()
