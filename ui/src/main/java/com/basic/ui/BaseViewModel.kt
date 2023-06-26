@@ -1,12 +1,9 @@
 package com.basic.ui
 
-import android.os.Looper
 import androidx.annotation.NonNull
 import androidx.lifecycle.*
 import com.basic.net.ApiResponse
 import com.basic.ui.view.StateListener
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
 
 /**
  * @author Peter Liu
@@ -18,19 +15,11 @@ inline fun <reified T : ViewModel> getViewModel(@NonNull owner: ViewModelStoreOw
     return ViewModelProvider(owner).get(T::class.java)
 }
 
-internal fun <T, V> BaseViewModel.liveData(default: V? = null): LiveDataProperty<T, V?> {
-    return LiveDataProperty(this, default)
-}
-
 open class BaseViewModel : ViewModel() {
     var isCleared = false
         private set
 
     private val liveDataMap = hashMapOf<String, MutableLiveData<*>>()
-
-    private var test:String? by liveData("123")
-    private var test2:String? by liveData()
-
 
     /**
      * 根据某个标识tag 创建一个 MutableLiveData
@@ -58,10 +47,6 @@ open class BaseViewModel : ViewModel() {
         } else {
             liveData as? MutableLiveData<T>
         }
-    }
-
-    fun <V> liveData(default: V? = null): LiveDataProperty<BaseViewModel, V?> {
-        return LiveDataProperty(this, default)
     }
 
     inline fun <reified T> launchResult(
@@ -129,28 +114,6 @@ open class BaseViewModel : ViewModel() {
         liveDataMap.clear()
     }
 }
-
-class LiveDataProperty<T, V>(var viewModel: BaseViewModel, var default: V? = null) :
-    ReadWriteProperty<T, V?> {
-    override fun getValue(thisRef: T, property: KProperty<*>): V? {
-        return viewModel.getLiveData(property.name, default)!!.value
-    }
-
-    override fun setValue(thisRef: T, property: KProperty<*>, value: V?) {
-        val livedata = viewModel.getLiveData(property.name, default)!!
-        if (Looper.getMainLooper().isCurrentThread) {
-            livedata.value = value
-        } else {
-            livedata.postValue(value)
-        }
-    }
-}
-
-//class LiveDataPropertyProvider<T, V>(var viewModel: BaseViewModel, var default: V? = null) {
-//    operator fun provideDelegate(thisRef: Any, property: KProperty<*>): ReadWriteProperty<T, V?> {
-//        return LiveDataProperty(viewModel, default)
-//    }
-//}
 
 
 

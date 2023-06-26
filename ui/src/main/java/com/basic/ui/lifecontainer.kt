@@ -7,8 +7,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
 import com.basic.ui.view.StateView
-import com.basic.ui.view.setVisible
 import com.basic.ui.view.Toolbar
+import com.basic.ui.view.setVisible
+import com.basic.ui.vproperty.LiveDataSetterProperty
 
 /**
  * @author: Peter Liu
@@ -85,9 +86,10 @@ internal interface LifecycleInit {
         return parent
     }
 
-    fun <V> liveData(default: V? = null): LiveDataProperty<LifecycleInit, V?> {
-        return getViewModel().liveData<LifecycleInit, V>(default)
+    fun <V> liveState(default: V? = null): LiveDataSetterProperty<V> {
+        return LiveDataSetterProperty(default)
     }
+
 }
 
 interface ViewGetter {
