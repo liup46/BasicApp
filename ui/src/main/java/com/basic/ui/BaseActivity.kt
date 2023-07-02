@@ -3,11 +3,13 @@ package com.basic.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import com.basic.ui.view.StateView
 import com.basic.ui.view.StatusBarHelper
 import com.basic.ui.view.Toolbar
+import com.basic.ui.vproperty.vVisible
 
 /**
  * @author Peter Liu
@@ -101,4 +103,17 @@ abstract class BaseActivity : AppCompatActivity(), ViewGetter, LifecycleInit {
         return this
     }
 
+}
+
+class TestActivity : BaseActivity() {
+    val state by liveState("123")
+    val stateVisable by liveState<Boolean>()
+
+    fun test() {
+        TextView(this).vVisible = stateVisable //动态绑定
+        TextView(this).vVisible(false)
+        TextView(this).vVisible.set(false)
+        TextView(this).vVisible(null) //不推荐
+
+    }
 }

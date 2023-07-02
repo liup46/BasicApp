@@ -1,5 +1,6 @@
 package com.basic.ui.vproperty
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
@@ -22,86 +23,62 @@ import com.basic.ui.view.setVisible
  *
  */
 
-var View.vVisible: Setter<Boolean>?
-    get() {
-        return null
+var View.vVisible by DefaultObserverSetterProperty<View, Boolean> {
+    if (it == null) {
+        return@DefaultObserverSetterProperty
     }
-    set(value) {
-        value?.get {
-            this.setVisible(it == true)
-        }
-    }
+    this?.setVisible(it)
+}
 
-var View.vBackground: Setter<Drawable>?
-    get() {
-        return null
-    }
-    set(value) {
-        value?.get {
-            this.background = it
-        }
-    }
+var View.vBackground by DefaultObserverSetterProperty<View, Drawable> {
+    this?.background = it
+}
 
-var View.vPadding: Setter<Edge>?
-    get() {
-        return null
+var View.vPadding by DefaultObserverSetterProperty<View, Edge> {
+    if (it == null) {
+        return@DefaultObserverSetterProperty
     }
-    set(value) {
-        value?.get {
-            if (it != null) {
-                setPadding(
-                    it.left ?: this.paddingLeft,
-                    it.top ?: this.paddingTop,
-                    it.right ?: this.paddingRight,
-                    it.bottom ?: this.paddingBottom
-                )
-            }
-        }
-    }
+    this?.setPadding(
+        it.left ?: this.paddingLeft,
+        it.top ?: this.paddingTop,
+        it.right ?: this.paddingRight,
+        it.bottom ?: this.paddingBottom
+    )
+}
 
-var View.vMargin: Setter<Edge>?
-    get() {
-        return null
+var View.vMargin by DefaultObserverSetterProperty<View, Edge> {
+    if (this == null || it == null) {
+        return@DefaultObserverSetterProperty
     }
-    set(value) {
-        value?.get {
-            if (it != null) {
-                val param = this.layoutParams
-                if (param is ViewGroup.MarginLayoutParams) {
-                    param.setMargins(
-                        it.left ?: this.marginLeft,
-                        it.top ?: this.marginTop,
-                        it.right ?: this.marginRight,
-                        it.bottom ?: this.marginBottom
-                    )
-                    this.layoutParams = param
-//                    this.requestLayout()
-                }
-            }
-        }
+    val param = this.layoutParams
+    if (param is ViewGroup.MarginLayoutParams) {
+        param.setMargins(
+            it.left ?: this.marginLeft,
+            it.top ?: this.marginTop,
+            it.right ?: this.marginRight,
+            it.bottom ?: this.marginBottom
+        )
+        this.layoutParams = param
+//      this.requestLayout()
     }
+}
 
-var TextView.vText: Setter<String>?
-    get() {
-        return null
-    }
-    set(value) {
-        value?.get {
-            this.text = it
-        }
-    }
+var TextView.vText by DefaultObserverSetterProperty<TextView, String> {
+    this?.text = it
+}
+
 
 /**
  * setTextColor(@ColorInt color: Int)
  */
-var TextView.vTextColor: Setter<Int>?
-    get() {
-        return null
+var TextView.vTextColor by DefaultObserverSetterProperty<TextView, Int> {
+    if (it == null) {
+        return@DefaultObserverSetterProperty
     }
-    set(value) {
-        value?.get {
-            if (it != null) {
-                this.setTextColor(it)
-            }
-        }
-    }
+    this?.setTextColor(it)
+}
+
+fun test(context: Context) {
+    View(context).vVisible(false)
+    View(context).vVisible.set(false)
+}

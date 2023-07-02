@@ -5,6 +5,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.basic.ui.LifecycleInit
 import kotlin.properties.ReadOnlyProperty
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
@@ -34,28 +35,87 @@ import kotlin.reflect.KProperty
  *
  */
 
-interface Getter<E> {
-    fun get(observer: (E?) -> Unit)
+typealias Func0 = () -> Unit
+typealias Func1<T> = (t: T?) -> Unit
+typealias Func2<V, T> = V?.(t: T?) -> Unit
+
+interface Getter<V> {
+    fun get(): V?
 }
 
-interface Setter<E> : Getter<E> {
-    fun set(data: E?)
+interface Observable<V> {
+    fun observer(observer: Func1<V>)
 }
 
-class DefaultSetter<E>(var observer: (E?) -> Unit) : Setter<E> {
-    override fun get(observer: (E?) -> Unit) {
+interface Setter<V> : Getter<V?>, Func1<V> {
+    fun set(data: V?)
+}
+
+interface ObserverSetter<V> : Getter<V?>, Func1<V>, Observable<V> {
+    fun set(data: V?)
+}
+
+class DefaultSetter<V>(var value: V? = null) : Setter<V> {
+    override fun set(data: V?) {
+        value = data
     }
 
-    override fun set(data: E?) {
-        observer.invoke(data)
+    override fun get(): V? {
+        return value
+    }
+
+    override fun invoke(p1: V?) {
+        set(data = p1)
     }
 }
 
-class LiveDataSetter<E>(var lifecycleOwner: LifecycleOwner, var liveData: MutableLiveData<E>) :
-    Setter<E> {
+class DefaultObserverSetter<V>(var value: V? = null, private val observer: Func1<V>? = null) :
+    ObserverSetter<V> {
+    override fun set(data: V?) {
+        value = data
+        observer?.invoke(data)
+    }
+
+    override fun get(): V? {
+        return value
+    }
+
+    override fun observer(observer: Func1<V>) {
+        throw IllegalStateException("Unsupported method.")
+    }
+
+    override fun invoke(p1: V?) {
+        set(data = p1)
+    }
+}
+
+internal class DefaultObserverSetterProperty<T, V>(
+    var default: V?= null,
+    inline var observer: Func2<T, V>? = null
+) : ReadWriteProperty<T, ObserverSetter<V>> {
+
+    var observerSetter: ObserverSetter<V>? = null
+
+    override fun getValue(thisRef: T, property: KProperty<*>): ObserverSetter<V> {
+        if (observerSetter == null) {
+            observerSetter = DefaultObserverSetter(default) {
+                observer?.invoke(thisRef, it)
+            }
+        }
+        return observerSetter!!
+    }
+
+
+    override fun setValue(thisRef: T, property: KProperty<*>, value: ObserverSetter<V>) {
+        observer?.invoke(thisRef, value.get())
+    }
+}
+
+class LiveDataSetter<V>(var lifecycleOwner: LifecycleOwner, var liveData: MutableLiveData<V>) :
+    ObserverSetter<V> {
     private var observered = false
 
-    override fun set(data: E?) {
+    override fun set(data: V?) {
         if (Looper.getMainLooper().isCurrentThread) {
             liveData.value = data
         } else {
@@ -63,7 +123,15 @@ class LiveDataSetter<E>(var lifecycleOwner: LifecycleOwner, var liveData: Mutabl
         }
     }
 
-    override fun get(observer: (E?) -> Unit) {
+    override fun get(): V? {
+        return liveData.value
+    }
+
+    override fun invoke(p1: V?) {
+        set(p1)
+    }
+
+    override fun observer(observer: Func1<V>) {
         if (!observered) {
             observered = true
             liveData.observe(lifecycleOwner, observer)
@@ -72,11 +140,11 @@ class LiveDataSetter<E>(var lifecycleOwner: LifecycleOwner, var liveData: Mutabl
 }
 
 internal class LiveDataSetterProperty<V>(var default: V?) :
-    ReadOnlyProperty<LifecycleInit, Setter<V>> {
+    ReadOnlyProperty<LifecycleInit, ObserverSetter<V>> {
 
-    var value: Setter<V>? = null
+    var value: ObserverSetter<V>? = null
 
-    override fun getValue(thisRef: LifecycleInit, property: KProperty<*>): Setter<V> {
+    override fun getValue(thisRef: LifecycleInit, property: KProperty<*>): ObserverSetter<V> {
         if (value == null) {
             val livedata = thisRef.getViewModel().getLiveData(property.name, default)
             value = LiveDataSetter(thisRef.getLifecycleOwner(), livedata!!)
