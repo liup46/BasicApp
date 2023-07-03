@@ -14,7 +14,7 @@ import com.basic.ui.view.Toolbar
  * @since 2020/5/22 2:37 PM
  *
  */
-abstract class BaseFragment : Fragment(), ViewGetter, LifecycleInit {
+abstract class BaseFragment : Fragment(), ViewContainer, LifecycleInit {
     override val layoutId: Int = -1
     override var toolbar: Toolbar? = null
     override var stateView: StateView? = null

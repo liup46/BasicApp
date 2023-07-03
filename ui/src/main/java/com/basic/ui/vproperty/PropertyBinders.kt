@@ -12,7 +12,7 @@ import androidx.core.view.marginTop
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.basic.ui.BaseViewModel
-import com.basic.ui.ViewGetter
+import com.basic.ui.ViewContainer
 import com.basic.ui.view.setVisible
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -44,7 +44,7 @@ fun <V : View, T> V.bind(
     return this
 }
 
-fun <T> ViewGetter.bind(
+fun <T> ViewContainer.bind(
     data: LiveData<T>,
     lifecycleOwner: LifecycleOwner?,
     updater: ViewUpdater<View, T>? = null

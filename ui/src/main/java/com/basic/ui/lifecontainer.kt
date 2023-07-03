@@ -9,14 +9,14 @@ import androidx.lifecycle.LifecycleOwner
 import com.basic.ui.view.StateView
 import com.basic.ui.view.Toolbar
 import com.basic.ui.view.setVisible
-import com.basic.ui.vproperty.LiveDataSetterProperty
+import com.basic.ui.vproperty.*
 
 /**
  * @author: Peter Liu
  * @date: 2022/11/9
  *
  */
-internal interface LifecycleInit {
+internal interface LifecycleInit : ViewContainer {
     val layoutId: Int?
     var toolbar: Toolbar?
     var stateView: StateView?
@@ -92,6 +92,24 @@ internal interface LifecycleInit {
 
 }
 
-interface ViewGetter {
+interface ViewContainer {
     fun getRootView(): View?
 }
+
+/**** 参数柯里化 *****/
+inline fun <T> ViewContainer.ui(crossinline fuc:Func2<View,T>):Func1<T>{
+    return {
+        fuc(getRootView(),it)
+    }
+}
+
+inline fun ViewContainer.ui(crossinline fuc:Func1<View>):Func0{
+    return {
+        fuc(getRootView())
+    }
+}
+
+fun <T> Func1<T>.bind(observerSetter: ObserverSetter<T>){
+    observerSetter.observer(this)
+}
+

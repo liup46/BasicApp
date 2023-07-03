@@ -69,7 +69,7 @@ class DefaultSetter<V>(var value: V? = null) : Setter<V> {
     }
 }
 
-class DefaultObserverSetter<V>(var value: V? = null, private val observer: Func1<V>? = null) :
+internal class ObserverSetterProperty<V>(var value: V? = null, private val observer: Func1<V>? = null) :
     ObserverSetter<V> {
     override fun set(data: V?) {
         value = data
@@ -89,16 +89,16 @@ class DefaultObserverSetter<V>(var value: V? = null, private val observer: Func1
     }
 }
 
-internal class DefaultObserverSetterProperty<T, V>(
+internal class ObserverSetterPropertyDelegate<T, V>(
     var default: V?= null,
-    inline var observer: Func2<T, V>? = null
+    inline var observer: Func2<T, V>? = null,
 ) : ReadWriteProperty<T, ObserverSetter<V>> {
 
     var observerSetter: ObserverSetter<V>? = null
 
     override fun getValue(thisRef: T, property: KProperty<*>): ObserverSetter<V> {
         if (observerSetter == null) {
-            observerSetter = DefaultObserverSetter(default) {
+            observerSetter = ObserverSetterProperty(default) {
                 observer?.invoke(thisRef, it)
             }
         }
@@ -107,7 +107,11 @@ internal class DefaultObserverSetterProperty<T, V>(
 
 
     override fun setValue(thisRef: T, property: KProperty<*>, value: ObserverSetter<V>) {
-        observer?.invoke(thisRef, value.get())
+        if (observer != null) {
+            value.observer { observer }
+        }
+        //现在的内部实现是livdata 故不用手动通知更新
+//        observer?.invoke(thisRef, value.get())
     }
 }
 

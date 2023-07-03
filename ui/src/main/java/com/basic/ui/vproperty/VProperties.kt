@@ -23,20 +23,20 @@ import com.basic.ui.view.setVisible
  *
  */
 
-var View.vVisible by DefaultObserverSetterProperty<View, Boolean> {
+var View.vVisible by ObserverSetterPropertyDelegate<View, Boolean> {
     if (it == null) {
-        return@DefaultObserverSetterProperty
+        return@ObserverSetterPropertyDelegate
     }
     this?.setVisible(it)
 }
 
-var View.vBackground by DefaultObserverSetterProperty<View, Drawable> {
+var View.vBackground by ObserverSetterPropertyDelegate<View, Drawable> {
     this?.background = it
 }
 
-var View.vPadding by DefaultObserverSetterProperty<View, Edge> {
+var View.vPadding by ObserverSetterPropertyDelegate<View, Edge> {
     if (it == null) {
-        return@DefaultObserverSetterProperty
+        return@ObserverSetterPropertyDelegate
     }
     this?.setPadding(
         it.left ?: this.paddingLeft,
@@ -46,9 +46,9 @@ var View.vPadding by DefaultObserverSetterProperty<View, Edge> {
     )
 }
 
-var View.vMargin by DefaultObserverSetterProperty<View, Edge> {
+var View.vMargin by ObserverSetterPropertyDelegate<View, Edge> {
     if (this == null || it == null) {
-        return@DefaultObserverSetterProperty
+        return@ObserverSetterPropertyDelegate
     }
     val param = this.layoutParams
     if (param is ViewGroup.MarginLayoutParams) {
@@ -63,7 +63,7 @@ var View.vMargin by DefaultObserverSetterProperty<View, Edge> {
     }
 }
 
-var TextView.vText by DefaultObserverSetterProperty<TextView, String> {
+var TextView.vText by ObserverSetterPropertyDelegate<TextView, String> {
     this?.text = it
 }
 
@@ -71,9 +71,9 @@ var TextView.vText by DefaultObserverSetterProperty<TextView, String> {
 /**
  * setTextColor(@ColorInt color: Int)
  */
-var TextView.vTextColor by DefaultObserverSetterProperty<TextView, Int> {
+var TextView.vTextColor by ObserverSetterPropertyDelegate<TextView, Int> {
     if (it == null) {
-        return@DefaultObserverSetterProperty
+        return@ObserverSetterPropertyDelegate
     }
     this?.setTextColor(it)
 }
