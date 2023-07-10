@@ -19,7 +19,6 @@ import java.util.*
  *
  */
 
-
 private var appVersionName: String? = null
 private var appVersionCode: Int? = null
 private var appSign: String? = null

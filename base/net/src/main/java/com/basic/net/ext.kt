@@ -1,8 +1,6 @@
 package com.basic.net
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 /**
  * @author Peter Liu
@@ -10,8 +8,10 @@ import kotlinx.coroutines.launch
  *
  */
 
-inline fun <T> CoroutineScope.safeRequest(
-    requestCall: () -> ApiResponse<T>?,
+typealias RequestCall<T> = suspend () -> ApiResponse<T>?
+
+suspend inline fun <T> CoroutineScope.request(
+    crossinline requestCall: RequestCall<T>,
 ): ApiResponse<T>? {
     return try {
         requestCall()

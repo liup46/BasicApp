@@ -8,7 +8,7 @@ import java.net.URLEncoder
 
 
 /**
- * Extentions for Phone Deivces
+ * Extentions for Phone Deivce's info
  *
  * @author Peter Liu
  * @since 2023/3/24 00:38

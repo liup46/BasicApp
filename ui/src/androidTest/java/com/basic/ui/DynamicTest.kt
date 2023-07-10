@@ -9,10 +9,10 @@ import com.google.android.material.R
 
 /**
  * @author Peter Liu
- * @since 2023/6/8 15:02
+ * @since 2023/7/7 23:48
  *
  */
-class Test: AppCompatActivity() {
+class DynamicTest: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

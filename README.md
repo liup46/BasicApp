@@ -5,7 +5,19 @@
 3. 网络库：okhttp+coroutines+Gson
 4. 渠道包功能：Walle
 5. crash监控功能：xcrash
-6. UI + 范式 -> ing
+6. UI + 范式: 基本完成了类mobx方式的属性绑定, 请求与ui的绑定
+    1. view 支持corner radius, shape stroke
+    2. Toolbar
+    3. StateView
+    4. BottonBar
+    5. 富文本
+    6. imageView 
+    7. 列表框架
+    8. Tab
+    9. BANNER
+    10. 通用dialog(Alert, bottomdialog， popup)
+    11. toast
+    12. 动画
 
 ## TODO:
 1. 插件化: 方案：Phantom

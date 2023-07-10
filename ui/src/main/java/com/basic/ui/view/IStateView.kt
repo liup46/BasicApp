@@ -28,7 +28,6 @@ fun interface ViewUpater<T> {
 
 typealias OnceObserver<T> = (T?) -> Unit
 
-
 interface StateListener<T> : OnceObserver<ApiResponse<T>>, IStateView, ViewUpater<T> {
     override fun invoke(result: ApiResponse<T>?) {
         this.showLoading(false)

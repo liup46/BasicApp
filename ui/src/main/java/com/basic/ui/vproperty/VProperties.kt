@@ -1,6 +1,5 @@
 package com.basic.ui.vproperty
 
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
@@ -11,32 +10,33 @@ import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import com.basic.ui.view.setVisible
 
+
 /**
- * 注意：尽量不要使用v开头的所有属性的get方法，建议直接设置view的android 属性，而不是通过'v'属性去set。故'v'属性的get方法直接返回null.
  *
- * Note: You'd better not call get method on all extend property start with 'v'
  *
- *  Properties: Width, Height, Text, TextColor, Background, Foreground, Padding, Margin,
+ * 可动态绑定的属性。具体用法参考[com.basic.ui.TestUiModeActivity]
+ *
+ *  Properties: Width, Height, Text, TextColor, Background, Padding, Margin,
+ *
  *
  * @author Peter Liu
  * @since 2023/6/27 01:36
  *
  */
-
-var View.vVisible by ObserverSetterPropertyDelegate<View, Boolean> {
+var View.vVisible by ObserverSetterDelegate<View, Boolean> {
     if (it == null) {
-        return@ObserverSetterPropertyDelegate
+        return@ObserverSetterDelegate
     }
     this?.setVisible(it)
 }
 
-var View.vBackground by ObserverSetterPropertyDelegate<View, Drawable> {
+var View.vBackground by ObserverSetterDelegate<View, Drawable> {
     this?.background = it
 }
 
-var View.vPadding by ObserverSetterPropertyDelegate<View, Edge> {
+var View.vPadding by ObserverSetterDelegate<View, Edge> {
     if (it == null) {
-        return@ObserverSetterPropertyDelegate
+        return@ObserverSetterDelegate
     }
     this?.setPadding(
         it.left ?: this.paddingLeft,
@@ -46,9 +46,9 @@ var View.vPadding by ObserverSetterPropertyDelegate<View, Edge> {
     )
 }
 
-var View.vMargin by ObserverSetterPropertyDelegate<View, Edge> {
+var View.vMargin by ObserverSetterDelegate<View, Edge> {
     if (this == null || it == null) {
-        return@ObserverSetterPropertyDelegate
+        return@ObserverSetterDelegate
     }
     val param = this.layoutParams
     if (param is ViewGroup.MarginLayoutParams) {
@@ -63,22 +63,16 @@ var View.vMargin by ObserverSetterPropertyDelegate<View, Edge> {
     }
 }
 
-var TextView.vText by ObserverSetterPropertyDelegate<TextView, String> {
+var TextView.vText by ObserverSetterDelegate<TextView, String> {
     this?.text = it
 }
-
 
 /**
  * setTextColor(@ColorInt color: Int)
  */
-var TextView.vTextColor by ObserverSetterPropertyDelegate<TextView, Int> {
+var TextView.vTextColor by ObserverSetterDelegate<TextView, Int> {
     if (it == null) {
-        return@ObserverSetterPropertyDelegate
+        return@ObserverSetterDelegate
     }
     this?.setTextColor(it)
-}
-
-fun test(context: Context) {
-    View(context).vVisible(false)
-    View(context).vVisible.set(false)
 }

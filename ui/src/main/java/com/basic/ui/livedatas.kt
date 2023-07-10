@@ -1,18 +1,63 @@
 package com.basic.ui
 
+import android.os.Looper
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.basic.net.ApiResponse
-import kotlin.properties.ReadOnlyProperty
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
+ * 支持 livedata = value
+ *
+ * Useage:
+ * TestViewModel{
+ *  var livepros:String by LiveDataProperty(this)
+ *  livepros = "11"
+ *
+ *  fun test(){
+ *      print(livepros)
+ * }
+ *
+ *
  * @author Peter Liu
  * @since 2022/11/24 00:42
  *
  */
+
+fun <T, V> liveData(viewModel: BaseViewModel, default: V? = null): LiveDataProperty<T, V?> {
+    return LiveDataProperty(viewModel, default)
+}
+open class LiveDataProperty<T, V>(var viewModel: BaseViewModel, var default: V? = null) :
+    ReadWriteProperty<T, V?> {
+    @Volatile
+    private var liveData: MutableLiveData<V>? = null
+    override fun getValue(thisRef: T, property: KProperty<*>): V? {
+        return getLiveData(property.name, default).value
+    }
+
+    private fun getLiveData(name: String, default: V?): MutableLiveData<V> {
+        if (liveData == null) {
+            liveData = viewModel.getLiveData(name, default)
+        }
+        return liveData!!
+    }
+
+    override fun setValue(thisRef: T, property: KProperty<*>, value: V?) {
+        val livedata = getLiveData(property.name, default)
+        if (Looper.getMainLooper().isCurrentThread) {
+            livedata.value = value
+        } else {
+            livedata.postValue(value)
+        }
+    }
+
+    fun getLiveData(): MutableLiveData<V>? {
+        return liveData
+    }
+}
 
 inline fun <reified CALL : Any, T> MutableLiveData<ApiResponse<T>>.launchResult(
     crossinline request: Executable<CALL?>

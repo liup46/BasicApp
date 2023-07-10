@@ -15,6 +15,8 @@ import java.util.*
 import java.util.regex.Pattern
 
 /**
+ * device brand relative tools
+ *
  * @author: Peter Liu
  * @date: 2022/11/9
  *

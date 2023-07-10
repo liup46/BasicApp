@@ -1,33 +1,10 @@
 package com.basic.ui.vproperty
 
-import android.os.Looper
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
-import com.basic.ui.LifecycleInit
-import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
- * 实现类似Mobx的功能，使用方式
- * TestActivity{
- *    var textView1:TextView?
- *    var textView2:TextView?
- *
- *    val testState1 by liveState("1")
- *    val testState2 by liveState<String>()
- *
- *    fun initView(){
- *      textView1.vText = testState1
- *      textView2.vText = testState2
- *
- *    }
- *
- *    //after http request end or click event , then set state value
- *    fun action(){
- *      testState1.set("2sss")
- *      testState2.set("2")
- *    }
+ * 实现类似Mobx的功能，使用方式 参考[TestUiModeActivity]
  *
  *
  * @author Peter Liu
@@ -47,15 +24,15 @@ interface Observable<V> {
     fun observer(observer: Func1<V>)
 }
 
-interface Setter<V> : Getter<V?>, Func1<V> {
+interface Setter<V> : Func1<V> {
     fun set(data: V?)
 }
 
-interface ObserverSetter<V> : Getter<V?>, Func1<V>, Observable<V> {
+interface IObserverSetter<V> : Func1<V>, Observable<V>,Getter<V?> {
     fun set(data: V?)
 }
 
-class DefaultSetter<V>(var value: V? = null) : Setter<V> {
+class DefaultSetter<V>(var value: V? = null) : Setter<V>, Getter<V?> {
     override fun set(data: V?) {
         value = data
     }
@@ -69,11 +46,18 @@ class DefaultSetter<V>(var value: V? = null) : Setter<V> {
     }
 }
 
-internal class ObserverSetterProperty<V>(var value: V? = null, private val observer: Func1<V>? = null) :
-    ObserverSetter<V> {
+/**
+ * 用来作为定义属性
+ */
+internal class ObserverSetter<V>(
+    private var value: V? = null,
+    private val observer: Func1<V>? = null
+) : IObserverSetter<V> {
     override fun set(data: V?) {
-        value = data
-        observer?.invoke(data)
+        if (value != data) {
+            value = data
+            observer?.invoke(data)
+        }
     }
 
     override fun get(): V? {
@@ -89,70 +73,33 @@ internal class ObserverSetterProperty<V>(var value: V? = null, private val obser
     }
 }
 
-internal class ObserverSetterPropertyDelegate<T, V>(
-    var default: V?= null,
+/**
+ * PropertyObserverSetter的属性委托类
+ */
+internal class ObserverSetterDelegate<T, V>(
+    private var default: V? = null,
+    private val notifyRightNow: Boolean = false,
     inline var observer: Func2<T, V>? = null,
-) : ReadWriteProperty<T, ObserverSetter<V>> {
+) : ReadWriteProperty<T, IObserverSetter<V>> {
 
-    var observerSetter: ObserverSetter<V>? = null
+    private var observerSetter: IObserverSetter<V>? = null
 
-    override fun getValue(thisRef: T, property: KProperty<*>): ObserverSetter<V> {
+    override fun getValue(thisRef: T, property: KProperty<*>): IObserverSetter<V> {
         if (observerSetter == null) {
-            observerSetter = ObserverSetterProperty(default) {
+            observerSetter = ObserverSetter(default) {
                 observer?.invoke(thisRef, it)
             }
         }
         return observerSetter!!
     }
 
-
-    override fun setValue(thisRef: T, property: KProperty<*>, value: ObserverSetter<V>) {
+    override fun setValue(thisRef: T, property: KProperty<*>, value: IObserverSetter<V>) {
         if (observer != null) {
             value.observer { observer }
         }
-        //现在的内部实现是livdata 故不用手动通知更新
-//        observer?.invoke(thisRef, value.get())
-    }
-}
-
-class LiveDataSetter<V>(var lifecycleOwner: LifecycleOwner, var liveData: MutableLiveData<V>) :
-    ObserverSetter<V> {
-    private var observered = false
-
-    override fun set(data: V?) {
-        if (Looper.getMainLooper().isCurrentThread) {
-            liveData.value = data
-        } else {
-            liveData.postValue(data)
+        if (notifyRightNow) {
+            //现在的内部实现是livdata 故不用手动通知更新notifyRightNow = false
+            observer?.invoke(thisRef, value.get())
         }
-    }
-
-    override fun get(): V? {
-        return liveData.value
-    }
-
-    override fun invoke(p1: V?) {
-        set(p1)
-    }
-
-    override fun observer(observer: Func1<V>) {
-        if (!observered) {
-            observered = true
-            liveData.observe(lifecycleOwner, observer)
-        }
-    }
-}
-
-internal class LiveDataSetterProperty<V>(var default: V?) :
-    ReadOnlyProperty<LifecycleInit, ObserverSetter<V>> {
-
-    var value: ObserverSetter<V>? = null
-
-    override fun getValue(thisRef: LifecycleInit, property: KProperty<*>): ObserverSetter<V> {
-        if (value == null) {
-            val livedata = thisRef.getViewModel().getLiveData(property.name, default)
-            value = LiveDataSetter(thisRef.getLifecycleOwner(), livedata!!)
-        }
-        return value!!
     }
 }

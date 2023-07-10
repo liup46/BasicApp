@@ -40,7 +40,7 @@ fun <T> ApiResponse<T>?.onFailed(
     onFailed: ((ApiResponse<T>?) -> Unit)? = null
 ): ApiResponse<T>? {
     if (!this.isSuccess()) {
-        if(showToast){
+        if (showToast) {
             //todo show toast
         }
         onFailed?.invoke(this)

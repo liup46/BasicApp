@@ -37,10 +37,10 @@ var View.gone: Boolean
         visibility = if (value) View.GONE else View.VISIBLE
     }
 
-fun <T : View> T.setVisible(visible: Boolean, action: (T.() -> Unit)? = null): T {
+fun <T : View> T.setVisible(visible: Boolean, visibleAction: (T.() -> Unit)? = null): T {
     if (visible) {
         visibility = View.VISIBLE
-        action?.invoke(this)
+        visibleAction?.invoke(this)
     } else {
         visibility = View.GONE
     }
@@ -57,13 +57,9 @@ fun <T : View> T.setInVisible(invisible: Boolean, trueAction: (T.() -> Unit)? = 
     return this
 }
 
-fun <T : View> T.setGone(gone: Boolean, trueAction: (T.() -> Unit)? = null): T {
-    if (gone) {
-        visibility = View.GONE
-        trueAction?.invoke(this)
-    } else {
-        visibility = View.VISIBLE
-    }
+fun <T : View> T.gone(goneAction: (T.() -> Unit)? = null): T {
+    visibility = View.GONE
+    goneAction?.invoke(this)
     return this
 }
 
@@ -231,10 +227,8 @@ private fun View?.getVisibilityStatus(): Triple<Boolean, Boolean, Boolean> {
 /**
  * Determine if keyboard is visible.
  */
-fun isKeyboardVisible(activity: Activity?): Boolean {
-    activity ?: return false
-
-    val activityRoot = (activity.findViewById<View>(
+fun Activity.isKeyboardVisible(): Boolean {
+    val activityRoot = (this.findViewById<View>(
         Window.ID_ANDROID_CONTENT
     ) as? ViewGroup)?.getChildAt(0)
 

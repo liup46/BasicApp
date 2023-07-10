@@ -6,17 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
+import com.basic.net.ApiResponse
+import com.basic.net.RequestCall
 import com.basic.ui.view.StateView
 import com.basic.ui.view.Toolbar
 import com.basic.ui.view.setVisible
-import com.basic.ui.vproperty.*
+import com.basic.ui.vproperty.Func0
+import com.basic.ui.vproperty.Func1
+import com.basic.ui.vproperty.Func2
+import com.basic.ui.vproperty.IObserverSetter
 
 /**
  * @author: Peter Liu
  * @date: 2022/11/9
  *
  */
-internal interface LifecycleInit : ViewContainer {
+interface LifecycleInit : ViewContainer {
     val layoutId: Int?
     var toolbar: Toolbar?
     var stateView: StateView?
@@ -86,10 +92,44 @@ internal interface LifecycleInit : ViewContainer {
         return parent
     }
 
-    fun <V> liveState(default: V? = null): LiveDataSetterProperty<V> {
-        return LiveDataSetterProperty(default)
+     fun <T> Func1<ApiResponse<T>>.onResult(tag: String, requestCall: RequestCall<T>) {
+        request(tag, requestCall).onResult {
+            this.invoke(it)
+        }
     }
 
+    fun <T> Func1<T>.onData(tag: String, requestCall: RequestCall<T>) {
+        request(tag, requestCall).onData {
+            this.invoke(it)
+        }
+    }
+
+    fun <T> MutableLiveData<T>.onResult(ui: Func1<T>) {
+        if (this.hasObservers()) {
+            return
+        }
+        this.observe(getLifecycleOwner()) {
+            ui.invoke(it)
+        }
+    }
+
+    fun <T> MutableLiveData<ApiResponse<T>>.onData(ui: Func1<T>) {
+        if (this.hasObservers()) {
+            return
+        }
+        this.observe(getLifecycleOwner()) {
+            if (it.isSuccess()) {
+                ui.invoke(it.result)
+            }
+        }
+    }
+}
+
+inline fun <T> LifecycleInit.request(
+    requestTag: String,
+    crossinline requestCall: RequestCall<T>
+): MutableLiveData<ApiResponse<T>> {
+    return getViewModel().request(requestTag, requestCall)
 }
 
 interface ViewContainer {
@@ -97,19 +137,19 @@ interface ViewContainer {
 }
 
 /**** 参数柯里化 *****/
-inline fun <T> ViewContainer.ui(crossinline fuc:Func2<View,T>):Func1<T>{
+inline fun <T> ViewContainer.ui(crossinline fuc: Func2<View, T>): Func1<T> {
     return {
-        fuc(getRootView(),it)
+        fuc(getRootView(), it)
     }
 }
 
-inline fun ViewContainer.ui(crossinline fuc:Func1<View>):Func0{
+inline fun ViewContainer.ui(crossinline fuc: Func1<View>): Func0 {
     return {
         fuc(getRootView())
     }
 }
 
-fun <T> Func1<T>.bind(observerSetter: ObserverSetter<T>){
+inline fun <T> Func1<T>.bind(observerSetter: IObserverSetter<T>) {
     observerSetter.observer(this)
 }
 

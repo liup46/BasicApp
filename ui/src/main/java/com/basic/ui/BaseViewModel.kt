@@ -2,8 +2,9 @@ package com.basic.ui
 
 import androidx.annotation.NonNull
 import androidx.lifecycle.*
-import com.basic.net.ApiResponse
-import com.basic.ui.view.StateListener
+import com.basic.net.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 /**
  * @author Peter Liu
@@ -49,64 +50,7 @@ open class BaseViewModel : ViewModel() {
         }
     }
 
-    inline fun <reified T> launchResult(
-        tag: String,
-        crossinline call: Executable<*>
-    ): LiveData<ApiResponse<T?>> {
-        val liveData = getLiveData<ApiResponse<T?>>(tag)!!
-        if (isCleared) {
-            return liveData
-        }
-        return liveData.launchResult(call)
-    }
-
-    inline fun <reified T> launchData(
-        tag: String,
-        crossinline call: Executable<*>
-    ): LiveData<T?> {
-        val liveData = getLiveData<T?>(tag)!!
-        if (isCleared) {
-            return liveData
-        }
-        return liveData.launchData(call)
-    }
-
-    inline fun <reified T> launchResult(
-        lifecycleOwner: LifecycleOwner,
-        requestTag: String,
-        consumer: StateListener<T>,
-        crossinline call: Executable<*>,
-    ) {
-        if (isCleared) {
-            return
-        }
-
-        val liveData =
-            getLiveData<ApiResponse<T>>(
-                requestTag,
-                defaultFactory = { OnceLiveData() }) as OnceLiveData<ApiResponse<T>>
-        if (!liveData.hasObservers()) {
-            liveData.observe(lifecycleOwner, consumer)
-        }
-        liveData.launchResult(call)
-    }
-
-    inline fun <reified T> launchData(
-        lifecycleOwner: LifecycleOwner,
-        requestTag: String,
-        noinline consumer: OnceObserver<T>,
-        crossinline call: Executable<*>,
-    ) {
-        if (isCleared) {
-            return
-        }
-        val liveData =
-            getLiveData<T>(requestTag, defaultFactory = { OnceLiveData() })!! as OnceLiveData<T>
-        if (!liveData.hasObservers()) {
-            liveData.observe(lifecycleOwner, consumer)
-        }
-        liveData.launchData(call)
-    }
+    fun <V> liveData(default: V? = null) = liveData<BaseViewModel, V>(this, default)
 
     override fun onCleared() {
         super.onCleared()
@@ -115,6 +59,34 @@ open class BaseViewModel : ViewModel() {
     }
 }
 
+fun <T> ApiResponse<T>?.mapLiveData(mutableLiveData: MutableLiveData<ApiResponse<T>>): MutableLiveData<ApiResponse<T>> {
+    if (this != null) {
+        mutableLiveData.value = this
+    }
+    return mutableLiveData
+}
+
+inline fun <T> BaseViewModel.request(
+    requestTag: String,
+    crossinline requestCall: RequestCall<T>
+): MutableLiveData<ApiResponse<T>> {
+    return request(getLiveData(requestTag)!!, requestCall)
+}
+
+inline fun <T> BaseViewModel.request(
+    liveData: MutableLiveData<ApiResponse<T>>,
+    crossinline requestCall: RequestCall<T>,
+): MutableLiveData<ApiResponse<T>> {
+    if (isCleared) {
+        return liveData
+    }
+    viewModelScope.launch {
+        request {
+            requestCall.invoke()
+        }.mapLiveData(liveData)
+    }
+    return liveData
+}
 
 
 

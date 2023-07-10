@@ -16,7 +16,7 @@ class TestNet {
     @Test
     fun test() {
         GlobalScope.launch {
-            safeRequest {
+            request {
                 HttpService.get<String>(path = "/asdb")
                 HttpService.get<String>("", "")
                 HttpService.post<String>(path = "111", body = "{}")

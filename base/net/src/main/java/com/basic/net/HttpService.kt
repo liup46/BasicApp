@@ -107,7 +107,7 @@ object HttpService {
     suspend fun <T> post(
         host: String = App.getUrlConfig().HttpHost,
         path: String,
-        body: Any?,
+        body: Any? = null,
         query: Map<String?, Any?>? = null
     ): ApiResponse<T>? {
         return withContext(Dispatchers.IO) {

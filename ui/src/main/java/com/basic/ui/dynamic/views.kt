@@ -21,8 +21,8 @@ open class View {
     var margin: Margin? = null
 
     var bgColor: Int? = Color.TRANSPARENT
-    var bgImage: Drawable ? = null
-    var bgImageUrl: String? = null
+    var bgDrawable: Drawable ? = null
+    var bgUrl: String? = null
 
     var radius: Radius? = null
     var border: Border? = null
@@ -39,8 +39,8 @@ open class View {
     }
 
     open protected fun applyProperty(view: android.view.View) {
-        if(bgImage!= null){
-            view.background = bgImage
+        if(bgDrawable!= null){
+            view.background = bgDrawable
         }
         if(radius!= null || border!= null){
         }
@@ -134,7 +134,7 @@ open class Box : View() {
     }
 
     override fun createView(context: Context): LinearLayout {
-        return null;
+        return LinearLayout(context);
     }
 }
 
@@ -145,7 +145,6 @@ inline fun Box(crossinline initFun: Box.() -> Unit): Box {
 }
 
 open class Scroller : Box() {
-    var onFling: ((View, offx: Int, offy: Int) -> Unit)? = null
-
+    var onScroll: ((View, offx: Int, offy: Int) -> Unit)? = null
 }
 
