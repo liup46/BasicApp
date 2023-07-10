@@ -1,3 +1,4 @@
+鉴于某些原因（中美脱钩....hhhha）后续主要更新在gitee上 https://gitee.com/liup46/BasicApp
 
 ## 功能：
 1. Log日志库：logan 
